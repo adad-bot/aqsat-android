@@ -183,6 +183,12 @@ legend{font-size:12.5px;color:var(--muted);font-weight:600;padding:0;margin-bott
 .dlg-actions .primary{background:var(--brand);border-color:var(--brand);color:#fff;flex:1}
 .dlg-actions .danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line));margin-inline-start:auto}
 .dlg-actions .danger:hover{background:var(--red-soft)}
+.pick{
+  border:1.5px dashed var(--line);background:transparent;color:var(--brand);
+  border-radius:11px;padding:11px;font:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;width:100%;
+}
+.pick:hover{background:var(--brand-soft);border-color:var(--brand)}
 
 /* ---------- توست ---------- */
 .toast{
@@ -256,11 +262,12 @@ legend{font-size:12.5px;color:var(--muted);font-weight:600;padding:0;margin-bott
 
 <dialog id="restoreDlg">
   <form id="restoreFrm">
-    <h2>بازیابی از متن</h2>
-    <p class="hint">متن پشتیبانی را که قبلاً کپی کرده‌ای اینجا جای‌گذاری کن.</p>
-    <textarea id="restoreText" rows="8" placeholder='{"app":"aqsat","v":1,"items":[...]}'></textarea>
+    <h2>بازیابی</h2>
+    <p class="hint">فایل پشتیبان (<code>.json</code>) را از گوشی انتخاب کن، یا متن آن را در کادر پایین بچسبان.</p>
+    <button type="button" class="pick" id="pickFileBtn">انتخاب فایل از گوشی</button>
+    <textarea id="restoreText" rows="6" placeholder='{"app":"aqsat","v":1,"items":[...]}'></textarea>
     <div class="dlg-actions">
-      <button type="submit" class="primary">بازیابی</button>
+      <button type="submit" class="primary">بازیابی از متن</button>
       <button type="button" id="closeRestoreBtn">انصراف</button>
     </div>
   </form>
@@ -863,9 +870,27 @@ function applyImported(items) {
 
 $('exportBtn').addEventListener('click', () => {
   if (!state.items.length) { toast('چیزی برای پشتیبان‌گیری نیست'); return; }
-  if (IN_APP) showBackupText();
-  else downloadBackup();
+
+  if (IN_APP) {
+    if (nativeSaveFile(backupFileName(), backupJson())) {
+      toast('فایل در پوشهٔ Download ذخیره شد');
+      return;
+    }
+    showBackupText();
+    return;
+  }
+  downloadBackup();
 });
+
+/* ذخیرهٔ فایل از طریق پوستهٔ اندروید (WebView خودش نمی‌تواند فایل بنویسد) */
+function nativeSaveFile(name, content) {
+  try {
+    if (window.AndroidAqsat && typeof window.AndroidAqsat.saveFile === 'function') {
+      return window.AndroidAqsat.saveFile(name, content) === true;
+    }
+  } catch (e) { /* می‌افتیم روی حالت متن */ }
+  return false;
+}
 
 $('copyBackupBtn').addEventListener('click', copyBackupText);
 $('closeBackupBtn').addEventListener('click', () => $('backupDlg').close());
@@ -874,11 +899,12 @@ $('importBtn').addEventListener('click', () => {
   if (IN_APP) {
     $('restoreText').value = '';
     $('restoreDlg').showModal();
-    setTimeout(() => $('restoreText').focus(), 80);
   } else {
     $('importFile').click();
   }
 });
+
+$('pickFileBtn').addEventListener('click', () => $('importFile').click());
 
 $('restoreFrm').addEventListener('submit', ev => {
   ev.preventDefault();
@@ -903,6 +929,7 @@ $('importFile').addEventListener('change', ev => {
       const items = normalizeItems(reader.result);
       if (!confirm('همهٔ داده‌های فعلی با ' + fa(items.length) + ' قسط این فایل جایگزین شود؟')) return;
       applyImported(items);
+      if ($('restoreDlg').open) $('restoreDlg').close();
     } catch (e) {
       toast('فایل معتبر نیست');
     }
