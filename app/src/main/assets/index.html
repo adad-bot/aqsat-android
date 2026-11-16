@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>اقساط من — یادآور تاریخ و مبلغ قسط</title>
+<meta name="description" content="دفترچهٔ سادهٔ اقساط: تاریخ سررسید، مبلغ و یادآور">
+<meta name="theme-color" content="#4f46e5">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<style>
+:root{
+  --bg:#f4f5f9; --card:#ffffff; --ink:#111827; --muted:#6b7280;
+  --line:#e5e7eb; --brand:#4f46e5; --brand-2:#7c3aed; --brand-soft:#eef2ff;
+  --green:#16a34a; --green-soft:#ecfdf5;
+  --red:#dc2626; --red-soft:#fef2f2;
+  --amber:#b45309; --amber-soft:#fffbeb;
+  --shadow:0 1px 2px rgba(16,24,40,.06), 0 10px 26px rgba(16,24,40,.07);
+  --radius:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1117; --card:#171a23; --ink:#e5e7eb; --muted:#9ca3af;
+    --line:#252a36; --brand:#818cf8; --brand-2:#a78bfa; --brand-soft:#1e1b4b;
+    --green:#4ade80; --green-soft:#052e16;
+    --red:#f87171; --red-soft:#450a0a;
+    --amber:#fbbf24; --amber-soft:#451a03;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 26px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Vazirmatn','IRANSansX','IRANSans','Segoe UI',Tahoma,system-ui,sans-serif;
+  font-size:15px; line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.app{max-width:620px;margin:0 auto;padding:14px 14px 128px}
+
+/* ---------- سرصفحه ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 2px 14px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{
+  width:42px;height:42px;border-radius:14px;flex:0 0 auto;
+  display:grid;place-items:center;color:#fff;font-size:20px;font-weight:700;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+  box-shadow:0 6px 16px rgba(79,70,229,.35);
+}
+.top h1{font-size:19px;margin:0;font-weight:800;letter-spacing:-.2px}
+.top .sub{margin:0;font-size:12px;color:var(--muted)}
+.icon-btn{
+  border:1px solid var(--line);background:var(--card);color:var(--muted);
+  width:40px;height:40px;border-radius:12px;font-size:17px;cursor:pointer;
+}
+.icon-btn[aria-pressed="true"]{color:var(--brand);border-color:var(--brand);background:var(--brand-soft)}
+
+/* ---------- خلاصه ---------- */
+.summary{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:10px;margin-bottom:14px}
+.card{
+  border-radius:var(--radius);padding:12px 14px;background:var(--card);
+  border:1px solid var(--line);box-shadow:var(--shadow);min-width:0;
+  display:flex;flex-direction:column;gap:2px;min-height:88px;justify-content:center;
+}
+.card .k{font-size:12px;color:var(--muted)}
+.card strong{
+  font-size:clamp(14px,4.3vw,19px);font-weight:800;letter-spacing:-.3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.card small{font-size:11.5px;color:var(--muted)}
+.card.remain{
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border:none;
+}
+.card.remain .k,.card.remain small{color:rgba(255,255,255,.82)}
+
+/* ---------- هشدار ---------- */
+.banner{
+  background:var(--amber-soft);color:var(--amber);border:1px solid currentColor;
+  border-radius:12px;padding:10px 12px;font-size:13px;margin-bottom:12px;font-weight:600;
+}
+
+/* ---------- فیلترها ---------- */
+.chips{display:flex;gap:8px;margin:2px 0 12px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{
+  border:1px solid var(--line);background:var(--card);color:var(--muted);
+  padding:7px 14px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer;
+  white-space:nowrap;transition:.15s;
+}
+.chips button.active{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:700}
+
+/* ---------- لیست ---------- */
+.list{display:flex;flex-direction:column;gap:9px}
+.row{
+  display:flex;align-items:center;gap:11px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:11px 12px;box-shadow:var(--shadow);cursor:pointer;
+  transition:transform .08s ease;
+}
+.row:active{transform:scale(.994)}
+.row.overdue{border-color:color-mix(in srgb,var(--red) 45%,var(--line))}
+.row.paid{opacity:.62}
+.check{
+  width:30px;height:30px;flex:0 0 auto;border-radius:50%;
+  border:2px solid var(--line);background:transparent;color:#fff;
+  display:grid;place-items:center;font-size:15px;font-weight:700;cursor:pointer;
+  transition:.15s;padding:0;line-height:1;
+}
+.check:hover{border-color:var(--green)}
+.row.paid .check{background:var(--green);border-color:var(--green)}
+.row.overdue .check{border-color:color-mix(in srgb,var(--red) 55%,var(--line))}
+.row .main{flex:1 1 auto;min-width:0}
+.row .title{font-weight:700;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row.paid .title{text-decoration:line-through;text-decoration-thickness:1.5px;color:var(--muted)}
+.row .meta{font-size:12px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pill{font-size:11px;padding:1px 8px;border-radius:999px;font-weight:700;line-height:1.8}
+.pill.due{background:var(--amber-soft);color:var(--amber)}
+.pill.late{background:var(--red-soft);color:var(--red)}
+.pill.ok{background:var(--green-soft);color:var(--green)}
+.row .amount{text-align:left;font-weight:800;font-size:14px;white-space:nowrap;flex:0 0 auto}
+.row .amount span{font-size:10.5px;font-weight:500;color:var(--muted)}
+
+/* ---------- خالی ---------- */
+.empty{
+  text-align:center;color:var(--muted);padding:44px 18px;font-size:13.5px;
+  border:1.5px dashed var(--line);border-radius:var(--radius);
+}
+.empty b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+
+/* ---------- ابزار پایین ---------- */
+.tools{display:flex;gap:9px;justify-content:center;margin-top:20px}
+.tools button{
+  border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:11px;padding:9px 14px;font:inherit;font-size:12.5px;cursor:pointer;
+}
+.tools button:hover{color:var(--ink)}
+
+/* ---------- دکمهٔ افزودن ---------- */
+.fab{
+  position:fixed;inset-inline-end:18px;bottom:calc(18px + env(safe-area-inset-bottom));
+  width:58px;height:58px;border-radius:19px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;
+  font-size:30px;font-weight:300;line-height:1;display:grid;place-items:center;
+  box-shadow:0 10px 24px rgba(79,70,229,.42);transition:transform .12s;
+  z-index:20;
+}
+.fab:active{transform:scale(.94)}
+
+/* ---------- دیالوگ ---------- */
+dialog{
+  border:none;border-radius:20px;padding:0;background:var(--card);color:var(--ink);
+  width:min(440px,calc(100% - 28px));box-shadow:0 24px 60px rgba(0,0,0,.28);
+}
+dialog::backdrop{background:rgba(15,17,23,.5);backdrop-filter:blur(3px)}
+dialog form{padding:18px;display:flex;flex-direction:column;gap:12px;margin:0}
+dialog h2{margin:0 0 2px;font-size:17px;font-weight:800}
+label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted);font-weight:600}
+.hint{font-size:11px;color:var(--muted);font-weight:400}
+input,select{
+  font:inherit;font-size:14px;color:var(--ink);background:var(--bg);
+  border:1px solid var(--line);border-radius:11px;padding:9px 11px;width:100%;
+  font-family:inherit;
+}
+input:focus,select:focus{outline:2px solid color-mix(in srgb,var(--brand) 55%,transparent);outline-offset:1px;border-color:var(--brand)}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+fieldset{border:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+legend{font-size:12.5px;color:var(--muted);font-weight:600;padding:0;margin-bottom:5px}
+.date-row{display:flex;gap:6px}
+.date-row select{flex:1}
+.link{
+  align-self:flex-start;border:none;background:none;color:var(--brand);
+  font:inherit;font-size:12px;cursor:pointer;padding:0;font-weight:700;
+}
+.dlg-actions{display:flex;gap:8px;margin-top:6px;align-items:center}
+.dlg-actions button{
+  font:inherit;font-size:13.5px;font-weight:700;border-radius:11px;padding:10px 16px;
+  cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);
+}
+.dlg-actions .primary{background:var(--brand);border-color:var(--brand);color:#fff;flex:1}
+.dlg-actions .danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 40%,var(--line));margin-inline-start:auto}
+.dlg-actions .danger:hover{background:var(--red-soft)}
+
+/* ---------- توست ---------- */
+.toast{
+  position:fixed;left:50%;bottom:88px;transform:translate(-50%,20px);
+  background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:12px;
+  font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;z-index:50;
+  max-width:86vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none !important}
+@media (max-width:360px){ .summary{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">✓</div>
+      <div>
+        <h1>اقساط من</h1>
+        <p class="sub">یادآور تاریخ و مبلغ قسط</p>
+      </div>
+    </div>
+    <button id="bellBtn" class="icon-btn" title="یادآور مرورگر" aria-pressed="false">🔔</button>
+  </header>
+
+  <section class="summary">
+    <div class="card remain">
+      <span class="k">باقی‌مانده</span>
+      <strong id="sumRemain">۰ تومان</strong>
+      <small id="cntRemain">۰ قسط پرداخت‌نشده</small>
+    </div>
+    <div class="card">
+      <span class="k">پرداخت‌شده</span>
+      <strong id="sumPaid">۰</strong>
+      <small id="cntPaid">۰ قسط</small>
+    </div>
+  </section>
+
+  <div class="banner hidden" id="banner"></div>
+
+  <nav class="chips" id="chips">
+    <button data-f="unpaid" class="active">پرداخت‌نشده</button>
+    <button data-f="all">همه</button>
+    <button data-f="paid">پرداخت‌شده</button>
+  </nav>
+
+  <main class="list" id="list"></main>
+  <div class="empty hidden" id="empty"></div>
+
+  <footer class="tools">
+    <button id="exportBtn">پشتیبان‌گیری</button>
+    <button id="importBtn">بازیابی</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </footer>
+
+</div>
+
+<button class="fab" id="addBtn" aria-label="افزودن قسط">+</button>
+
+<dialog id="dlg">
+  <form id="frm" novalidate>
+    <h2 id="dlgTitle">قسط جدید</h2>
+
+    <label>عنوان
+      <input id="fTitle" type="text" maxlength="60" placeholder="مثلاً وام مسکن" required>
+    </label>
+
+    <label>مبلغ (تومان)
+      <input id="fAmount" type="number" inputmode="numeric" min="1000" step="1000" placeholder="1250000" required>
+      <span class="hint" id="amountHint"></span>
+    </label>
+
+    <fieldset>
+      <legend>تاریخ سررسید</legend>
+      <div class="date-row">
+        <select id="fDay" aria-label="روز"></select>
+        <select id="fMonth" aria-label="ماه"></select>
+        <select id="fYear" aria-label="سال"></select>
+      </div>
+      <button type="button" class="link" id="todayBtn">بگذار روی امروز</button>
+    </fieldset>
+
+    <label id="countWrap">تعداد اقساط
+      <input id="fCount" type="number" min="1" max="60" value="1" inputmode="numeric">
+      <span class="hint">اگر بیشتر از ۱ باشد، اقساط ماهانه از همین تاریخ ساخته می‌شوند.</span>
+    </label>
+
+    <label>توضیح (اختیاری)
+      <input id="fNote" type="text" maxlength="120" placeholder="مثلاً بانک ملت، شعبهٔ …">
+    </label>
+
+    <div class="dlg-actions">
+      <button type="submit" class="primary">ذخیره</button>
+      <button type="button" id="cancelBtn">انصراف</button>
+      <button type="button" id="delBtn" class="danger hidden">حذف</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<noscript>
+  <p style="padding:20px;text-align:center">برای استفاده از این برنامه باید جاوااسکریپت مرورگر فعال باشد.</p>
+</noscript>
+
+<script>
+'use strict';
+
+/* =========================================================
+   ۱) تقویم جلالی (بدون کتابخانهٔ بیرونی)
+   ========================================================= */
+const div = (a, b) => ~~(a / b);
+const mod = (a, b) => a - ~~(a / b) * b;
+const BREAKS = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210,
+                1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+
+function jalCal(jy, withoutLeap) {
+  const bl = BREAKS.length;
+  const gy = jy + 621;
+  let leapJ = -14;
+  let jp = BREAKS[0];
+  let jm, jump = 0, leap = 0, leapG, march, n, i;
+
+  for (i = 1; i < bl; i += 1) {
+    jm = BREAKS[i];
+    jump = jm - jp;
+    if (jy < jm) break;
+    leapJ += div(jump, 33) * 8 + div(mod(jump, 33), 4);
+    jp = jm;
+  }
+  n = jy - jp;
+
+  leapJ += div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+  if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+
+  leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+  march = 20 + leapJ - leapG;
+
+  if (!withoutLeap) {
+    if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
+    leap = mod(mod(n + 1, 33) - 1, 4);
+    if (leap === -1) leap = 4;
+  }
+  return { leap: leap, gy: gy, march: march };
+}
+
+function g2d(gy, gm, gd) {
+  let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
+        + div(153 * mod(gm + 9, 12) + 2, 5)
+        + gd - 34840408;
+  d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+  return d;
+}
+
+function d2g(jdn) {
+  let j = 4 * jdn + 139361631;
+  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+  const i = div(mod(j, 1461), 4) * 5 + 308;
+  const gd = div(mod(i, 153), 5) + 1;
+  const gm = mod(div(i, 153), 12) + 1;
+  const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+  return { gy: gy, gm: gm, gd: gd };
+}
+
+function j2d(jy, jm, jd) {
+  const r = jalCal(jy, true);
+  return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+}
+
+function d2j(jdn) {
+  const gy = d2g(jdn).gy;
+  let jy = gy - 621;
+  const r = jalCal(jy, false);
+  const jdn1f = g2d(gy, 3, r.march);
+  let jd, jm, k;
+
+  k = jdn - jdn1f;
+  if (k >= 0) {
+    if (k <= 185) {
+      jm = 1 + div(k, 31);
+      jd = mod(k, 31) + 1;
+      return { jy: jy, jm: jm, jd: jd };
+    }
+    k -= 186;
+  } else {
+    jy -= 1;
+    k += 179;
+    if (r.leap === 1) k += 1;
+  }
+  jm = 7 + div(k, 30);
+  jd = mod(k, 30) + 1;
+  return { jy: jy, jm: jm, jd: jd };
+}
+
+const isLeapJalali = jy => jalCal(jy, false).leap === 0;
+
+function monthLen(jy, jm) {
+  if (jm <= 6) return 31;
+  if (jm <= 11) return 30;
+  return isLeapJalali(jy) ? 30 : 29;
+}
+
+function todayJdn() {
+  const n = new Date();
+  return g2d(n.getFullYear(), n.getMonth() + 1, n.getDate());
+}
+
+function todayJalali() {
+  return d2j(todayJdn());
+}
+
+function addMonths(jy, jm, jd, n) {
+  const total = jy * 12 + (jm - 1) + n;
+  const ny = Math.floor(total / 12);
+  const nm = (total % 12) + 1;
+  return { jy: ny, jm: nm, jd: Math.min(jd, monthLen(ny, nm)) };
+}
+
+/* =========================================================
+   ۲) کمک‌تابع‌های نمایش
+   ========================================================= */
+const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+const NUM_FMT = new Intl.NumberFormat('fa-IR');
+
+const fa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+const money = n => NUM_FMT.format(n) + ' تومان';
+const jdnOf = it => j2d(it.jy, it.jm, it.jd);
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+function dateLabel(jy, jm, jd) {
+  return fa(jd) + ' ' + MONTHS[jm - 1] + ' ' + fa(jy);
+}
+
+function daysLabel(d) {
+  if (d === 0) return 'امروز';
+  if (d === 1) return 'فردا';
+  if (d === -1) return 'دیروز';
+  if (d > 1) return fa(d) + ' روز مانده';
+  return fa(-d) + ' روز گذشته';
+}
+
+/* =========================================================
+   ۳) داده‌ها
+   ========================================================= */
+const STORE_KEY = 'aqsat_v1';
+const NOTIFY_KEY = 'aqsat_last_notify';
+
+const state = { items: [], filter: 'unpaid' };
+let editingId = null;
+
+function loadItems() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return [];
+    const data = JSON.parse(raw);
+    const items = Array.isArray(data) ? data : data.items;
+    if (!Array.isArray(items)) return [];
+    return items.filter(it =>
+      it && typeof it.id === 'string' &&
+      Number.isFinite(it.amount) && it.amount > 0 &&
+      Number.isInteger(it.jy) && Number.isInteger(it.jm) && Number.isInteger(it.jd)
+    );
+  } catch (e) {
+    console.warn('خواندن داده‌ها ناموفق بود', e);
+    return [];
+  }
+}
+
+function persist() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({ v: 1, items: state.items }));
+  } catch (e) {
+    toast('ذخیره نشد؛ حافظهٔ مرورگر پر است');
+  }
+}
+
+const uid = () => 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+/* =========================================================
+   ۴) رابط کاربری
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const listEl = $('list');
+const emptyEl = $('empty');
+const dlg = $('dlg');
+const frm = $('frm');
+const toastEl = $('toast');
+
+let toastTimer = null;
+function toast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+}
+
+function summary() {
+  const t = todayJdn();
+  let remain = 0, paid = 0, nRemain = 0, nPaid = 0, due = 0;
+  for (const it of state.items) {
+    if (it.paid) { paid += it.amount; nPaid++; }
+    else {
+      remain += it.amount; nRemain++;
+      if (jdnOf(it) - t <= 0) due++;
+    }
+  }
+  $('sumRemain').textContent = money(remain);
+  $('cntRemain').textContent = fa(nRemain) + ' قسط پرداخت‌نشده';
+  $('sumPaid').textContent = money(paid);
+  $('cntPaid').textContent = fa(nPaid) + ' قسط';
+
+  const banner = $('banner');
+  if (due > 0) {
+    banner.textContent = '⚠️ ' + fa(due) + ' قسط سررسیدشده یا امروز داری';
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+function makeRow(it, t) {
+  const d = jdnOf(it) - t;
+  const row = document.createElement('div');
+  row.className = 'row' + (it.paid ? ' paid' : '') + (!it.paid && d < 0 ? ' overdue' : '');
+  row.tabIndex = 0;
+
+  const check = document.createElement('button');
+  check.type = 'button';
+  check.className = 'check';
+  check.textContent = it.paid ? '✓' : '';
+  check.setAttribute('aria-label', it.paid ? 'برگشت به پرداخت‌نشده' : 'پرداخت شد');
+  check.addEventListener('click', ev => {
+    ev.stopPropagation();
+    it.paid = !it.paid;
+    it.paidAt = it.paid ? new Date().toISOString() : null;
+    persist();
+    render();
+    toast(it.paid ? 'پرداخت شد' : 'به پرداخت‌نشده برگشت');
+  });
+
+  const main = document.createElement('div');
+  main.className = 'main';
+
+  const title = document.createElement('div');
+  title.className = 'title';
+  title.textContent = it.title;
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const dateSpan = document.createElement('span');
+  dateSpan.textContent = dateLabel(it.jy, it.jm, it.jd);
+  meta.appendChild(dateSpan);
+
+  if (!it.paid) {
+    const pill = document.createElement('span');
+    if (d < 0) { pill.className = 'pill late'; pill.textContent = daysLabel(d); }
+    else if (d <= 7) { pill.className = 'pill due'; pill.textContent = daysLabel(d); }
+    else { pill.className = 'pill ok'; pill.textContent = daysLabel(d); }
+    meta.appendChild(pill);
+  }
+  if (it.note) {
+    const n = document.createElement('span');
+    n.style.opacity = '.75';
+    n.textContent = '· ' + it.note;
+    meta.appendChild(n);
+  }
+
+  main.appendChild(title);
+  main.appendChild(meta);
+
+  const amount = document.createElement('div');
+  amount.className = 'amount';
+  amount.textContent = NUM_FMT.format(it.amount);
+  const unit = document.createElement('span');
+  unit.textContent = ' تومان';
+  amount.appendChild(unit);
+
+  row.appendChild(check);
+  row.appendChild(main);
+  row.appendChild(amount);
+
+  row.addEventListener('click', () => openForm(it));
+  row.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openForm(it); }
+  });
+  return row;
+}
+
+function render() {
+  summary();
+  const t = todayJdn();
+  let items = state.items.slice();
+
+  items.sort((a, b) => {
+    if (a.paid !== b.paid) return a.paid ? 1 : -1;
+    return a.paid ? jdnOf(b) - jdnOf(a) : jdnOf(a) - jdnOf(b);
+  });
+
+  if (state.filter === 'unpaid') items = items.filter(i => !i.paid);
+  if (state.filter === 'paid') items = items.filter(i => i.paid);
+
+  listEl.textContent = '';
+
+  if (!items.length) {
+    emptyEl.classList.remove('hidden');
+    if (!state.items.length) {
+      emptyEl.innerHTML = '<b>هنوز قسطی ثبت نشده</b>با دکمهٔ + اولین قسط را اضافه کن.';
+    } else if (state.filter === 'paid') {
+      emptyEl.innerHTML = '<b>قسط پرداخت‌شده‌ای نیست</b>با زدن دایرهٔ کنار هر قسط، آن را پرداخت‌شده علامت بزن.';
+    } else {
+      emptyEl.innerHTML = '<b>همه‌چیز پرداخت شده</b>قسط پرداخت‌نشده‌ای نداری.';
+    }
+    return;
+  }
+
+  emptyEl.classList.add('hidden');
+  const frag = document.createDocumentFragment();
+  for (const it of items) frag.appendChild(makeRow(it, t));
+  listEl.appendChild(frag);
+}
+
+/* ---------- دیالوگ فرم ---------- */
+const fTitle = $('fTitle');
+const fAmount = $('fAmount');
+const fDay = $('fDay');
+const fMonth = $('fMonth');
+const fYear = $('fYear');
+const fCount = $('fCount');
+const fNote = $('fNote');
+const dlgTitle = $('dlgTitle');
+const delBtn = $('delBtn');
+const countWrap = $('countWrap');
+
+function fillYears(selected) {
+  const now = todayJalali().jy;
+  const lo = Math.min(now - 5, selected || now - 5);
+  const hi = Math.max(now + 10, selected || now + 10);
+  fYear.textContent = '';
+  for (let y = lo; y <= hi; y += 1) {
+    const o = document.createElement('option');
+    o.value = String(y);
+    o.textContent = fa(y);
+    fYear.appendChild(o);
+  }
+  fYear.value = String(selected || now);
+}
+
+function fillMonths() {
+  fMonth.textContent = '';
+  MONTHS.forEach((m, i) => {
+    const o = document.createElement('option');
+    o.value = String(i + 1);
+    o.textContent = m;
+    fMonth.appendChild(o);
+  });
+}
+
+function fillDays() {
+  const y = +fYear.value;
+  const m = +fMonth.value;
+  const len = monthLen(y, m);
+  const cur = clamp(+fDay.value || 1, 1, len);
+  fDay.textContent = '';
+  for (let d = 1; d <= len; d += 1) {
+    const o = document.createElement('option');
+    o.value = String(d);
+    o.textContent = fa(d);
+    fDay.appendChild(o);
+  }
+  fDay.value = String(cur);
+}
+
+function setDate(d) {
+  fillYears(d.jy);
+  fMonth.value = String(d.jm);
+  fillDays();
+  fDay.value = String(Math.min(d.jd, +fDay.options.length));
+}
+
+function updateAmountHint() {
+  const v = Math.round(Number(fAmount.value));
+  $('amountHint').textContent = (Number.isFinite(v) && v > 0) ? money(v) : '';
+}
+
+function openForm(item) {
+  editingId = item ? item.id : null;
+  dlgTitle.textContent = item ? 'ویرایش قسط' : 'قسط جدید';
+  fTitle.value = item ? item.title : '';
+  fAmount.value = item ? String(item.amount) : '';
+  fNote.value = item && item.note ? item.note : '';
+  fCount.value = '1';
+  countWrap.classList.toggle('hidden', !!item);
+  delBtn.classList.toggle('hidden', !item);
+  setDate(item ? { jy: item.jy, jm: item.jm, jd: item.jd } : todayJalali());
+  updateAmountHint();
+  if (typeof dlg.showModal === 'function') dlg.showModal();
+  else dlg.setAttribute('open', '');
+  setTimeout(() => fTitle.focus(), 60);
+}
+
+function closeForm() {
+  if (typeof dlg.close === 'function') dlg.close();
+  else dlg.removeAttribute('open');
+  editingId = null;
+}
+
+frm.addEventListener('submit', ev => {
+  ev.preventDefault();
+
+  const title = fTitle.value.trim();
+  const amount = Math.round(Number(fAmount.value));
+  if (!title) { toast('عنوان را بنویس'); fTitle.focus(); return; }
+  if (!Number.isFinite(amount) || amount <= 0) { toast('مبلغ را درست وارد کن'); fAmount.focus(); return; }
+
+  const jy = +fYear.value, jm = +fMonth.value, jd = +fDay.value;
+  const note = fNote.value.trim();
+
+  if (editingId) {
+    const it = state.items.find(x => x.id === editingId);
+    if (it) Object.assign(it, { title: title, amount: amount, jy: jy, jm: jm, jd: jd, note: note });
+    persist(); closeForm(); render(); toast('ویرایش شد');
+    return;
+  }
+
+  const count = clamp(parseInt(fCount.value, 10) || 1, 1, 60);
+  const base = {
+    title: title, amount: amount, note: note,
+    paid: false, paidAt: null, createdAt: new Date().toISOString()
+  };
+  for (let i = 0; i < count; i += 1) {
+    const d = addMonths(jy, jm, jd, i);
+    state.items.push(Object.assign({}, base, { id: uid(), jy: d.jy, jm: d.jm, jd: d.jd }));
+  }
+  persist(); closeForm(); render();
+  toast(count > 1 ? fa(count) + ' قسط ساخته شد' : 'قسط اضافه شد');
+});
+
+delBtn.addEventListener('click', () => {
+  const it = state.items.find(x => x.id === editingId);
+  if (!it) return;
+  if (!confirm('این قسط حذف شود؟ «' + it.title + '»')) return;
+  state.items = state.items.filter(x => x.id !== editingId);
+  persist(); closeForm(); render(); toast('حذف شد');
+});
+
+$('cancelBtn').addEventListener('click', closeForm);
+$('addBtn').addEventListener('click', () => openForm(null));
+dlg.addEventListener('click', ev => { if (ev.target === dlg) closeForm(); });
+
+fYear.addEventListener('change', () => { fillDays(); });
+fMonth.addEventListener('change', fillDays);
+fAmount.addEventListener('input', updateAmountHint);
+
+$('todayBtn').addEventListener('click', () => {
+  const t = todayJalali();
+  setDate(t);
+});
+
+$('chips').addEventListener('click', ev => {
+  const btn = ev.target.closest('button[data-f]');
+  if (!btn) return;
+  state.filter = btn.dataset.f;
+  for (const b of $('chips').children) b.classList.toggle('active', b === btn);
+  render();
+});
+
+/* ---------- پشتیبان‌گیری و بازیابی ---------- */
+$('exportBtn').addEventListener('click', () => {
+  if (!state.items.length) { toast('چیزی برای پشتیبان‌گیری نیست'); return; }
+  const data = { app: 'aqsat', v: 1, exportedAt: new Date().toISOString(), items: state.items };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const t = todayJalali();
+  a.href = url;
+  a.download = 'aqsat-backup-' + t.jy + '-' + String(t.jm).padStart(2, '0') + '-' + String(t.jd).padStart(2, '0') + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('فایل پشتیبان ذخیره شد');
+});
+
+$('importBtn').addEventListener('click', () => $('importFile').click());
+
+$('importFile').addEventListener('change', ev => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(String(reader.result));
+      const items = Array.isArray(data) ? data : data.items;
+      if (!Array.isArray(items) || !items.length) throw new Error('ساختار فایل درست نیست');
+      if (!confirm('همهٔ داده‌های فعلی با ' + fa(items.length) + ' قسط این فایل جایگزین شود؟')) return;
+      state.items = items
+        .filter(it => it && Number.isFinite(it.amount) && Number.isInteger(it.jy))
+        .map(it => ({
+          id: typeof it.id === 'string' ? it.id : uid(),
+          title: String(it.title || 'بدون عنوان'),
+          amount: Math.round(it.amount),
+          jy: it.jy, jm: it.jm, jd: it.jd,
+          paid: !!it.paid,
+          paidAt: it.paidAt || null,
+          note: String(it.note || ''),
+          createdAt: it.createdAt || new Date().toISOString()
+        }));
+      persist(); render(); toast('داده‌ها بازیابی شد');
+    } catch (e) {
+      toast('فایل معتبر نیست');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+});
+
+/* ---------- یادآور مرورگر ---------- */
+const bellBtn = $('bellBtn');
+
+function notifySupported() {
+  return 'Notification' in window && location.protocol !== 'file:';
+}
+
+async function enableNotifications() {
+  if (!notifySupported()) {
+    toast('یادآور مرورگر فقط وقتی برنامه از یک آدرس http باشد کار می‌کند');
+    return;
+  }
+  if (Notification.permission === 'denied') {
+    toast('اجازهٔ اعلان در مرورگر رد شده است');
+    return;
+  }
+  const p = await Notification.requestPermission();
+  if (p === 'granted') {
+    localStorage.setItem(NOTIFY_KEY + '_on', '1');
+    bellBtn.setAttribute('aria-pressed', 'true');
+    toast('یادآور فعال شد');
+    notifyDue(true);
+  } else {
+    toast('اجازه داده نشد');
+  }
+}
+
+function notifyDue(force) {
+  if (!notifySupported() || Notification.permission !== 'granted') return;
+  if (localStorage.getItem(NOTIFY_KEY + '_on') !== '1') return;
+
+  const t = todayJdn();
+  const due = state.items.filter(it => !it.paid && jdnOf(it) - t <= 0);
+  if (!due.length) return;
+
+  const todayKey = String(t);
+  if (!force && localStorage.getItem(NOTIFY_KEY) === todayKey) return;
+
+  try {
+    new Notification('اقساط من', {
+      body: fa(due.length) + ' قسط سررسیدشده یا امروز داری',
+      tag: 'aqsat-due'
+    });
+    localStorage.setItem(NOTIFY_KEY, todayKey);
+  } catch (e) { /* بی‌صدا */ }
+}
+
+bellBtn.addEventListener('click', () => {
+  if (localStorage.getItem(NOTIFY_KEY + '_on') === '1' && notifySupported() && Notification.permission === 'granted') {
+    localStorage.removeItem(NOTIFY_KEY + '_on');
+    bellBtn.setAttribute('aria-pressed', 'false');
+    toast('یادآور خاموش شد');
+    return;
+  }
+  enableNotifications();
+});
+
+/* ---------- راه‌اندازی ---------- */
+state.items = loadItems();
+if (localStorage.getItem(NOTIFY_KEY + '_on') === '1') bellBtn.setAttribute('aria-pressed', 'true');
+fillMonths();
+render();
+notifyDue(false);
+
+setTimeout(() => { if (!state.items.length) toast('برای شروع، دکمهٔ + را بزن'); }, 700);
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
